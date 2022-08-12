@@ -1,0 +1,29 @@
+{
+  "files": {
+    "main.css": "/static/css/main.02d974da.css",
+    "main.js": "/static/js/main.0abf32a4.js",
+    "static/js/787.f512d102.chunk.js": "/static/js/787.f512d102.chunk.js",
+    "static/media/Pattern.png": "/static/media/Pattern.2d1672679c8fa8c23a6a.png",
+    "static/media/Inter-Regular.ttf": "/static/media/Inter-Regular.2391725004ae05a27e8e.ttf",
+    "static/media/Avenir-Book.ttf": "/static/media/Avenir-Book.91e9bc0fc8886d781878.ttf",
+    "static/media/Avenir-Medium.ttf": "/static/media/Avenir-Medium.78f0f895b98dad1d667c.ttf",
+    "static/media/Avenir-Heavy.ttf": "/static/media/Avenir-Heavy.9a5eab6bd72e17c04db8.ttf",
+    "static/media/Petani.png": "/static/media/Petani.fbf279aefe49f13035d8.png",
+    "static/media/Admin.png": "/static/media/Admin.d926935ffbf91a76febe.png",
+    "static/media/Agronom.png": "/static/media/Agronom.b5cd55464a90c5153c82.png",
+    "static/media/Partner.png": "/static/media/Partner.2676c7ba710f70a0036a.png",
+    "static/media/Client.png": "/static/media/Client.de3bbda71c71218c08f9.png",
+    "static/media/Korlap.png": "/static/media/Korlap.baedca085f6af972560a.png",
+    "static/media/OTP.png": "/static/media/OTP.0202eb5ba5ec908e655e.png",
+    "static/media/LogoTel.png": "/static/media/LogoTel.f66a7e121de873de504c.png",
+    "static/media/Logo.png": "/static/media/Logo.4d5b76b33e8111d1b7f7.png",
+    "index.html": "/index.html",
+    "main.02d974da.css.map": "/static/css/main.02d974da.css.map",
+    "main.0abf32a4.js.map": "/static/js/main.0abf32a4.js.map",
+    "787.f512d102.chunk.js.map": "/static/js/787.f512d102.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.02d974da.css",
+    "static/js/main.0abf32a4.js"
+  ]
+}
