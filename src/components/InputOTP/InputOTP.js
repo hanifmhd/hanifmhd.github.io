@@ -23,6 +23,7 @@ function InputOTP ({
   }
   useEffect(() => {
     focusOn(0)
+    document.getElementById('input0').removeAttribute('readOnly')
   }, [])
 
   const handleChange = (e, i) => {
@@ -36,20 +37,29 @@ function InputOTP ({
       setValidOTP('sukses')
       onChange('otpNumber', newCode)
     } else {
+      focusOn(newCode.length)
+      document.getElementById(`input${newCode.length}`).removeAttribute('readOnly')
       setValidOTP('first')
     }
     // remove error message
-    setOTPInvalidity(newCode.length !== 6)
+    // setOTPInvalidity(newCode.length !== 6)
   }
 
   const handleKeyDown = (e, i) => {
     const keyCodeDel = 8
-    if (e.keyCode === keyCodeDel && e.target.value === '') {
+    if (e.keyCode === keyCodeDel && e.target.value === '' && i !== 0) {
       document.getElementById(`input${i}`).style.borderColor = '#D7DCDF'
       focusOn(i - 1)
     }
   }
-  console.log('validOTP', validOTP)
+  const handleClick = (e, i) => {
+    const newCode = doms.map(d => d.value).join('')
+    newCode.length === 6 ? focusOn(newCode.length - 1) : focusOn(newCode.length)
+    document.getElementById(`input${newCode.length}`).removeAttribute('readOnly')
+    if (e.target.value === '' && i !== 0) {
+      document.getElementById(`input${i}`).style.borderColor = '#D7DCDF'
+    }
+  }
   const codeBoxItems = [0, 1, 2, 3, 4, 5].map(i => (
       <CodeInput key={i}>
         <input
@@ -59,8 +69,12 @@ function InputOTP ({
           autoComplete="false"
           autoCorrect="off"
           autoCapitalize="off"
+          readOnly
           spellCheck="false"
           onChange={e => handleChange(e, i)}
+          onClick={(e) => {
+            handleClick(e, i)
+          }}
           onKeyDown={e => handleKeyDown(e, i)}
           onFocus={() => {
             document.getElementById(`input${i}`).style.borderWidth = '2px'
@@ -76,11 +90,11 @@ function InputOTP ({
   ))
 
   return (
-      <Wrapper className={classnames(`${classProps}`)}>
+      <Wrapper className={classnames(`${classProps} relative`)}>
         <CodeWrapper>{codeBoxItems}</CodeWrapper>
         {
-         validOTP === 'error' && (
-           <p className={classnames('text-[#FF0025] text-[14px] font-poppins mt-[2px] tracking-[0.0035em] leading-[20px]')}>{messageError}</p>
+         messageError !== '' && (
+          <p className={classnames('text-[#FF0025] text-[14px] font-poppins tracking-[0.0035em] leading-[20px] mt-[3px] ')}>{messageError}</p>
          )
         }
       </Wrapper>

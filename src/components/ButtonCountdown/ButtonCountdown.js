@@ -13,7 +13,8 @@ function ButtonCountDown ({
   seconds,
   onClickResend,
   clickableCount,
-  classProps
+  classProps,
+  setTimesInterval
 }) {
   const [clickedCount, setClickedCount] = useState(0)
   const [message, setMessage] = useState(
@@ -28,6 +29,8 @@ function ButtonCountDown ({
     timerData = setInterval(() => {
           if (minute2 >= 0 && minute2 !== false) {
             setSeconds2(seconds2 - 1)
+            const secondsInterval = seconds2 - 1
+            setTimesInterval(`${minute2 < 10 ? '0' + minute2 : minute2}:${secondsInterval < 10 ? '0' + secondsInterval : secondsInterval}`)
             if (seconds2 === 0 && minute2 > 0) {
               setMinute2(minute2 - 1)
               setSeconds2(59)
@@ -65,7 +68,7 @@ function ButtonCountDown ({
         minute2 !== false && seconds2 !== false
 ? (
         <>
-          <span className={classnames('text-red-600 ml-[8px]')}>
+          <span className={classnames('text-[#EE4949] ml-[8px] font-semibold')}>
             {minute2 < 10 ? '0' + minute2 : minute2}:{seconds2 < 10 ? '0' + seconds2 : seconds2}
           </span>
           <img src={Loader} className={classnames('motion-safe:animate-spin 5s ml-[8px] w-[13px] mt-[3px]')} alt="loader"/>
@@ -86,7 +89,8 @@ ButtonCountDown.propTypes = {
   onClick: PropTypes.func,
   clickableCount: PropTypes.number,
   unclickableText: PropTypes.object,
-  classProps: PropTypes.string
+  classProps: PropTypes.string,
+  setTimesInterval: PropTypes.func
 }
 
 export default ButtonCountDown

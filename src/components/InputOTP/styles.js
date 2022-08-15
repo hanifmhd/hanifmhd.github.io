@@ -23,7 +23,7 @@ export const CodeInput = styled.div`
     height: inherit;
     font-size: 14px};
     font-family: Poppins;
-    color: black;
+    color: #00253A;
     font-size: 24px;
     font-weight: 500;
 

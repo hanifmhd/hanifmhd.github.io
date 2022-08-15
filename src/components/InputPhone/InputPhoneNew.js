@@ -47,9 +47,18 @@ function InputPhoneNew ({
       ? value.replace(pattern, '').replace(/(^\s*)/g, '')
       : value.replace(/(^\s*)/g, '')
     const formated = formatter ? formatter(newValue) : newValue
-    onChange(name, formated)
+    console.log('formated.substring(0, 1)', formated.substring(0, 1))
+    if (formated.substring(0, 1) === 0 || formated.substring(0, 1) === '0') {
+      const convertReplace = replaceZero(formated, 0, '')
+      onChange(name, convertReplace)
+    } else {
+      onChange(name, formated)
+    }
   }
-
+  const replaceZero = (str, index, chr) => {
+    if (index > str.length - 1) return str
+    return str.substring(0, index) + chr + str.substring(index + 1)
+  }
   useEffect(() => {
     if (valueSet !== '') {
       setShowButtonClear(true)

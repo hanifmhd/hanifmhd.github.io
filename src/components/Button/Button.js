@@ -97,7 +97,11 @@ function Button ({
 }
 
 Button.propTypes = {
-  text: PropTypes.string,
+  text: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.element,
+    PropTypes.component
+  ]),
   type: PropTypes.string,
   color: PropTypes.string,
   variant: PropTypes.string,

@@ -13,6 +13,7 @@ import Character from '../../components/Character/Character'
 import Copyright from '../../components/Copyright/Copyright'
 import InputPhoneNew from '../../components/InputPhone/InputPhoneNew'
 // Assets
+import Loading from '../../assets/icon/Loading.png'
 import PatternBG from '../../assets/image/Pattern.png'
 import Country from '../../assets/icon/country.png'
 import Edit from '../../assets/icon/Edit.png'
@@ -49,7 +50,15 @@ export default function Login () {
     alertPhoneWrong: false,
     alertPhoneWrongAlways: false,
     clickedModalAlert: 0,
-    messageError: ''
+    messageErrorSplit: '',
+    messageError: '',
+    messageInterval: false,
+    messageErrorOTP: ''
+  }
+  const initialTimer = {
+    minutesState: 4,
+    seconds: 59,
+    timesInterval: ''
   }
   const { setAuth } = useAuth()
   const navigate = useNavigate()
@@ -61,9 +70,7 @@ export default function Login () {
   const [validOTP, setValidOTP] = useState('first')
   const [ticketID, setTicketID] = useState('')
   const [validLogin, setValidLogin] = useState(false)
-  const [minutesState, setMinutesState] = useState(4)
-  const [seconds, setSeconds] = useState(59)
-  const [messageError, setMessageError] = useState('')
+  const [timerState, setTimerState] = useState(initialTimer)
   const OTP_RESEND_LIMIT = 5
   //
   const controller = new AbortController()
@@ -112,16 +119,13 @@ export default function Login () {
         setDisabledButton(true)
       }
     } else if (name === 'otpNumber') {
+      setLoading(true)
       dispatch(
         verifyOTPAction({
           otp: value,
           ticket_id: ticketID
         })
       )
-      setShowAlert((prevState) => ({
-        ...prevState,
-        clickedModalAlert: showAlert.clickedModalAlert + 1
-      }))
     }
     setFormData(old => ({
       ...old,
@@ -144,12 +148,14 @@ export default function Login () {
 
   const generateButtonSubmit = () => {
     if (loading) {
-      return 'Loading'
+      return (
+        <img src={Loading} className={classnames('motion-safe:animate-spin 5s ml-[50%] w-[20px] mt-[3px]')} alt="loader"/>
+      )
     } else {
       if (step === 1) {
-        return 'Kirimkan OTP'
+        return 'Kirim Kode OTP'
       } else {
-        return 'Masuk'
+        return 'Konfirmasi'
       }
     }
   }
@@ -162,6 +168,7 @@ export default function Login () {
     setShowAlert((prevState) => ({
       ...prevState,
       alertPhoneWrongAlways: false,
+      messageErrorOTP: '',
       clickedModalAlert: 0
     }))
   }
@@ -180,6 +187,7 @@ export default function Login () {
     setShowAlert((prevState) => ({
       ...prevState,
       alertPhoneWrongAlways: false,
+      messageErrorOTP: '',
       clickedModalAlert: 0
     }))
   }
@@ -192,7 +200,7 @@ export default function Login () {
     setValidOTP('success')
     setShowAlert((prevState) => ({
       ...prevState,
-      messageError: '',
+      messageErrorOTP: '',
       clickedModalAlert: showAlert.clickedModalAlert + 1
     }))
   }
@@ -202,38 +210,56 @@ export default function Login () {
     const responseSelector = get('login')(loginSelector)
     if (responseSelector?.status === 'error') {
       if (responseSelector?.error.code_message === '8201') {
+        // Logic Convert
         const splitArray = responseSelector?.error.message.split('[')
         const splitSecond = splitArray[1].split(']')
         const minutes = Math.floor(splitSecond[0] / 60)
         const seconds = splitSecond[0] - minutes * 60
-        setMinutesState(minutes)
-        setSeconds(seconds)
+        //
+        setLoading(false)
         setStep(2)
         setDisabledButton(true)
-      }
-      setShowAlert((prevState) => ({
-        ...prevState,
-        alertPhoneWrong: true,
-        messageError: responseSelector.error.message
-      }))
-      setLoading(false)
-      //
-      setTimeout(() => {
+        setTimerState((prevState) => ({
+          ...prevState,
+          minutesState: minutes,
+          seconds
+        }))
         setShowAlert((prevState) => ({
           ...prevState,
-          alertPhoneWrong: false,
-          messageError: ''
+          messageErrorSplit: [
+            splitArray[0],
+            splitSecond[1]
+          ],
+          messageInterval: true
         }))
-        if (responseSelector?.error.code_message !== '8201') {
-          setDisabledButton(false)
-        }
-      }, 2000)
+      } else {
+        setShowAlert((prevState) => ({
+          ...prevState,
+          alertPhoneWrong: true,
+          messageError: responseSelector.error.message
+        }))
+        setTimeout(() => {
+          setShowAlert((prevState) => ({
+            ...prevState,
+            alertPhoneWrong: false,
+            messageError: ''
+          }))
+          setLoading(false)
+          if (responseSelector?.error.code_message !== '8201') {
+            setDisabledButton(false)
+          }
+        }, 2000)
+      }
+      //
       //
     } else if (responseSelector?.status === 'sukses') {
       // setSubmitPhone(true)
       setTicketID(responseSelector.sukses.ticket_id)
-      setMinutesState(4)
-      setSeconds(59)
+      setTimerState((prevState) => ({
+        ...prevState,
+        minutesState: 4,
+        seconds: 59
+      }))
       setShowAlert((prevState) => ({
         ...prevState,
         clickedModalAlert: 0
@@ -241,11 +267,10 @@ export default function Login () {
       if (step === 1) {
         setDisabledButton(true)
       }
+      setStep(2)
       setLoading(false)
-      setTimeout(() => {
-        setStep(2)
-      }, 500)
     }
+
     return () => {
       controller.abort()
     }
@@ -265,24 +290,31 @@ export default function Login () {
           setShowAlert((prevState) => ({
             ...prevState,
             alertPhoneWrong: false,
+            clickedModalAlert: showAlert.clickedModalAlert + 1,
             messageError: ''
           }))
-        }, 1000)
+        }, 2000)
+      } else {
+        setShowAlert((prevState) => ({
+          ...prevState,
+          messageErrorOTP: responseSelector?.error.message,
+          clickedModalAlert: showAlert.clickedModalAlert + 1
+        }))
       }
-      setMessageError(responseSelector?.error.message)
       setValidOTP('error')
-      setTimeout(() => {
-        setLoading(false)
-        setDisabledButton(false)
-      }, 2000)
+      setLoading(false)
+      setDisabledButton(false)
       // saveTo
     } else if (responseSelector?.status === 'sukses') {
       setValidLogin(true)
       setValidOTP('success')
       saveToLocalStorage('auth_token', responseSelector.sukses.token)
       saveToLocalStorage('refresh_token', responseSelector.sukses.refresh_token)
-      // setValidLogin(true)
       saveToLocalStorage('expire', responseSelector.sukses.expire)
+      setShowAlert((prevState) => ({
+        ...prevState,
+        clickedModalAlert: 0
+      }))
     }
     return () => {
       controller.abort()
@@ -301,30 +333,29 @@ export default function Login () {
       setTimeout(() => {
         setShowAlert((prevState) => ({
           ...prevState,
-          alertPhoneWrong: false
+          alertPhoneWrong: false,
+          messageError: ''
         }))
         setLoading(false)
         setDisabledButton(false)
       }, 2000)
       // saveTo
     } else if (responseSelector?.status === 'sukses') {
-      setTimeout(() => {
-        setAuth({ user: responseSelector.sukses.fullname, pwd: 'tes', roles: 1, accessToken: loadFromLocalStorage('auth_token') })
-        // Save To Local Storage
-        const data = {
-          fullname: responseSelector.sukses.fullname,
-          phone_no: btoa(responseSelector.sukses.phone_no),
-          email: btoa(responseSelector.sukses.email),
-          profile_picture: responseSelector.sukses.profile_picture,
-          id: btoa(responseSelector.sukses.id),
-          role_id: responseSelector.sukses.code_id,
-          role_name: responseSelector.sukses.code_role
-        }
-        saveToLocalStorage('user', data)
-        //
-        navigate('/', { replace: true })
-        setLoading(false)
-      }, 500)
+      setAuth({ user: responseSelector.sukses.fullname, pwd: 'tes', roles: 1, accessToken: loadFromLocalStorage('auth_token') })
+      // Save To Local Storage
+      const data = {
+        fullname: responseSelector.sukses.fullname,
+        phone_no: btoa(responseSelector.sukses.phone_no),
+        email: btoa(responseSelector.sukses.email),
+        profile_picture: responseSelector.sukses.profile_picture,
+        id: btoa(responseSelector.sukses.id),
+        role_id: responseSelector.sukses.code_id,
+        role_name: responseSelector.sukses.code_role
+      }
+      saveToLocalStorage('user', data)
+      //
+      navigate('/', { replace: true })
+      setLoading(false)
     }
     return () => {
       controller.abort()
@@ -341,6 +372,39 @@ export default function Login () {
       controller.abort()
     }
   }, [validLogin])
+
+  React.useEffect(() => {
+    if (showAlert.messageInterval) {
+      setShowAlert((prevState) => ({
+        ...prevState,
+        alertPhoneWrong: true
+      }))
+      setTimeout(() => {
+        setShowAlert((prevState) => ({
+          ...prevState,
+          alertPhoneWrong: false,
+          messageErrorSplit: '',
+          messageInterval: false
+        }))
+        setTimerState((prevState) => ({
+          ...prevState,
+          timesInterval: ''
+        }))
+      }, 2000)
+    }
+    return () => {
+      controller.abort()
+    }
+  }, [timerState.timesInterval])
+
+  const setTimerInterval = (value) => {
+    if (showAlert.messageInterval) {
+      setTimerState((prevState) => ({
+        ...prevState,
+        timesInterval: value
+      }))
+    }
+  }
 
   return (
       <div className={classnames('min-h-screen grid h-screen place-items-center')} style={{ background: `url(${PatternBG}), #E6F5EB` }}>
@@ -400,17 +464,21 @@ export default function Login () {
                         validOTP={validOTP}
                         name='otpNumber'
                         setValidOTP={(value) => { setValidOTP(value) }}
-                        messageError={messageError}
+                        messageError={showAlert.messageErrorOTP}
                       />
-                      <div className={classnames(`block ${validOTP === 'error' ? 'mt-[2px]' : 'mt-[24px]'}`)} >
+                      {
+                        console.log('showAlert.messageErrorOTP', showAlert.messageErrorOTP)
+                      }
+                      <div className={classnames(`block ${showAlert.messageErrorOTP ? 'mt-[2px]' : 'mt-[24px]'}`)} >
                         {/* End Input */}
                       <ButtonCountDown
                           resendText="Kirim ulang kode dalam"
-                          total={minutesState}
+                          total={timerState.minutesState}
                           onClickResend={() => { resendOTP() }}
-                          seconds={seconds}
+                          seconds={timerState.seconds}
                           clickableCount={OTP_RESEND_LIMIT}
                           classProps="text-left content-start items-start ml-[21px]"
+                          setTimesInterval={(value) => { setTimerInterval(value) }}
                         />
                       </div>
 
@@ -427,9 +495,8 @@ export default function Login () {
                />
               {/* Copyright  */}
               <Copyright/>
-
               {/* Snackbar */}
-              <Snackbar type="danger" text={showAlert.messageError} classProps={classnames(` ${showAlert.alertPhoneWrong ? 'translate-y-1 opacity-1' : ' opacity-0 translate-y-[200px] '} transform duration-500 ease-in-out  transition`)}/>
+              <Snackbar type="danger" text={showAlert.messageInterval && showAlert.messageErrorSplit !== '' ? `${showAlert.messageErrorSplit[0]} ${timerState.timesInterval} ${showAlert.messageErrorSplit[1]}` : showAlert.messageError} classProps={classnames(` ${showAlert.alertPhoneWrong ? 'translate-y-1 opacity-1' : ' opacity-0 translate-y-[200px] '} transform duration-500 ease-in-out  transition`)}/>
           </Card>
           {/* Show Modal */}
           {
