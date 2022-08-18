@@ -2,9 +2,10 @@
 import { detailProfileServ } from '../../../services/services'
 import Profile from '../../../models/profile/profile'
 import * as actionType from '../../../constants/action-type/profile'
+import { handleError } from '../handleError/handleError'
 
 export const detailProfileAction = () => dispatch =>
-  new Promise(async (resolve, reject) => {
+  new Promise(async (resolve) => {
     try {
       const resData = await detailProfileServ()
       const datas = new Profile(resData.data.data)
@@ -26,14 +27,18 @@ export const detailProfileAction = () => dispatch =>
       resolve(resData)
       return resData
     } catch (err) {
-      dispatch({
-        data: {
-          code: err.response.status,
-          message: err.response.data.meta.message,
-          status: 'error'
-        },
-        type: actionType.PROFILE_FAILED
-      })
+      if (err.response.status === 417 || err.response.status === 412 || err.response.status === 403) {
+        handleError(err, detailProfileAction(), dispatch)
+      } else {
+        dispatch({
+          data: {
+            code: err.response.status,
+            message: err.response.data.meta.message,
+            status: 'error'
+          },
+          type: actionType.PROFILE_FAILED
+        })
+      }
       return err
     }
   })

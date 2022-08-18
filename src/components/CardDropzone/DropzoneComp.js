@@ -1,4 +1,3 @@
-/* eslint-disable quotes */
 import React, { useEffect } from 'react'
 import { useDropzone } from 'react-dropzone'
 import classnames from 'classnames'
@@ -104,10 +103,10 @@ function DropzoneComp ({ onDrop, closeModal, title, removeDataFile, dropzoneStat
 
   // Upload Files
   function uploadFiles () {
-    alert("Upload")
+    alert('Upload')
   }
 
-  const onHandleRemove = (index, variant) => {
+  const onHandleRemove = (index) => {
     removeDataFile(index)
     dropzoneState.message.splice(index, 1)
     dropzoneState.progressInfos.splice(index, 1)
@@ -144,7 +143,7 @@ function DropzoneComp ({ onDrop, closeModal, title, removeDataFile, dropzoneStat
       return (
         <>
         <button className={classnames('absolute right-[10px]')} onClick={() => {
-          alert("Reupload")
+          alert('Reupload')
         }}>
           <img className={classnames('w-[14px]')} src={Reupload}/>
         </button>
@@ -195,7 +194,7 @@ function DropzoneComp ({ onDrop, closeModal, title, removeDataFile, dropzoneStat
           <h4 className={classnames('text-[18px] font-semibold font-poppins')}>Unggah {title}</h4>
       </div>
 
-      <div className={classnames('items-center flex flex-col border-2 border-dashed border-[#33AD5C] rounded-lg relative')}>
+      <div className={classnames('items-center flex flex-col border-2 border-dashed border-success rounded-lg relative')}>
         <div {...getRootProps({ className: 'dropzone', disabled: true })}>
           <input
           {...getInputProps()} />
@@ -204,7 +203,7 @@ function DropzoneComp ({ onDrop, closeModal, title, removeDataFile, dropzoneStat
               <div className={classnames('flex flex-col  items-center py-[34px] px-[24px] ')}>
                     <img src={DropzoneImage} className={classnames('w-[72px]')} alt="icon_dropzone"/>
                     <p className={classnames('text-[14px] font-semibold font-poppins mt-[24px]')}>Seret dan tempel untuk mengunggah dokumen</p>
-                    <p className={classnames('text-[14px] font-poppins mt-[8px] text-[#BABEC1]')}>atau tekan tombol di bawah ini</p>
+                    <p className={classnames('text-[14px] font-poppins mt-[8px] text-subtitle')}>atau tekan tombol di bawah ini</p>
                     <Button text="Pilih Dokumen" variant="success" noFill classProps="mt-[24px] !py-[8px] text-[14px] rounded-[6px]" onClick={() => {}}/>
                 </div>
               )
@@ -215,10 +214,10 @@ function DropzoneComp ({ onDrop, closeModal, title, removeDataFile, dropzoneStat
                 {
                   dropzoneStateProps.selectedFiles?.length > 0 && dropzoneStateProps.selectedFiles.map((selected, index) => (
                     <>
-                    <div key={index} className={classnames(`flex  mb-[19px] w-[264px] items-center relative `)}>
+                    <div key={index} className={classnames('flex  mb-[19px] w-[264px] items-center relative ')}>
                         <img src={handleIconUpload(index, selected?.status)}
                         className={classnames('w-[18px] h-[18px]')}/>
-                        <p className={classnames(`ml-[12px] text-[12px] ${(selected.errors || dropzoneState?.message[index]?.includes('Could not upload the file')) && 'text-[#FF0025]'}`)}>{selected?.Dokumen?.name}</p>
+                        <p className={classnames(`ml-[12px] text-[12px] ${(selected.errors || dropzoneState?.message[index]?.includes('Could not upload the file')) && 'text-danger'}`)}>{selected?.Dokumen?.name}</p>
                         {/*  */}
                         {
                           checkRemoveFile(dropzoneState?.message[index]?.includes('Could not upload the file'), dropzoneState?.progressInfos[index]?.percentage, index, selected?.status)
@@ -234,9 +233,8 @@ function DropzoneComp ({ onDrop, closeModal, title, removeDataFile, dropzoneStat
         <Snackbar type="danger" text={`Dokumen harus dalam format ${tipeUpload} dan maksimal ${convertMB}`} classProps={classnames(` ${dropzoneStateProps.selectedFiles.findIndex(x => x.errors) >= 0 ? 'visible opacity-1  easy-in' : ' invisible opacity-0 ease-in-out'} transition duration-700 absolute left-0 right-0  !bottom-[15px] text-left z-99 mr-auto ml-auto !py-[6px] !px-[16px]  !text-[16px] `)}/>
 
       </div>
-      <div className={classnames('flex justify-end border-t border-[#D7DCDF] mt-[40px] z-99')}>
-          <Button text="Batalkan" variant="noColor" noFill classProps="mt-[24px] !py-[8px] text-[14px] rounded-[6px] mr-[8px]" onClick={() => { closeModal() }}/>
-
+      <div className={classnames('flex justify-end border-t border-secondary mt-[40px] z-99')}>
+          <Button text="Batalkan" variant="noColor" noFill classProps="mt-[24px] !py-[8px] text-[14px] rounded-[6px] !mr-[40px]" onClick={() => { closeModal() }}/>
           <Button text="Unggah" variant="success" noFill classProps="mt-[24px] !py-[8px] text-[14px] rounded-[6px]" onClick={() => { uploadFiles() }}/>
       </div>
     </>

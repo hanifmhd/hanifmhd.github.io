@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { DETAIL_PROFILE, LOGIN_ACTION, VERIFY_OTP } from '../constants/serviceURL'
+import { DETAIL_PROFILE, LOGIN_ACTION, VERIFY_OTP, REFRESH_URL } from '../constants/serviceURL'
 import { PLATFORM_NAME, PLATFORM_LANG } from './helpers'
 import { loadFromLocalStorage } from '../utils/local-storage-helper'
 
@@ -62,4 +62,27 @@ export const countLaporanServ = (data) =>
       Authorization: loadFromLocalStorage('auth_token')
     },
     data: JSON.stringify(data)
+  })
+
+export const refreshToken = (data) =>
+  axios({
+    method: 'POST',
+    url: `${process.env.REACT_APP_SERVICE_URL}${REFRESH_URL}`,
+    headers: {
+      'x-platform-name': PLATFORM_NAME,
+      'x-platform-lang': PLATFORM_LANG,
+      'content-type': 'application/json',
+      Authorization: loadFromLocalStorage('refresh_token')
+    },
+    data: JSON.stringify(data)
+  })
+
+export const logout = () =>
+  axios.post('/v1/sign-out', {}, {
+    headers: {
+      'Content-Type': 'application/json',
+      'x-platform-name': PLATFORM_NAME,
+      'x-platform-lang': PLATFORM_LANG,
+      Authorization: loadFromLocalStorage('auth_token')
+    }
   })

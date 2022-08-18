@@ -11,7 +11,7 @@ import { Wrapper, CodeWrapper, CodeInput } from './styles'
 
 function InputOTP ({
   onChange,
-  setOTPInvalidity,
+  setDisabledButon,
   classProps,
   validOTP = 'first',
   setValidOTP,
@@ -36,13 +36,15 @@ function InputOTP ({
     if (newCode.length === 6) {
       setValidOTP('sukses')
       onChange('otpNumber', newCode)
+      setDisabledButon(false)
     } else {
       focusOn(newCode.length)
       document.getElementById(`input${newCode.length}`).removeAttribute('readOnly')
       setValidOTP('first')
+      setDisabledButon(true)
     }
     // remove error message
-    // setOTPInvalidity(newCode.length !== 6)
+    // setDisabledButon(newCode.length !== 6)
   }
 
   const handleKeyDown = (e, i) => {
@@ -55,11 +57,24 @@ function InputOTP ({
   const handleClick = (e, i) => {
     const newCode = doms.map(d => d.value).join('')
     newCode.length === 6 ? focusOn(newCode.length - 1) : focusOn(newCode.length)
-    document.getElementById(`input${newCode.length}`).removeAttribute('readOnly')
+    console.log('input newCode.length}', newCode.length)
+    if (document.getElementById(`input${newCode.length - 1}`).hasAttribute('readOnly')) {
+      document.getElementById(`input${newCode.length - 1}`).removeAttribute('readOnly')
+    }
     if (e.target.value === '' && i !== 0) {
       document.getElementById(`input${i}`).style.borderColor = '#D7DCDF'
     }
   }
+
+  const generateStyle = () => {
+    if (validOTP === 'sukses') {
+      return '!border-2 !border-success !text-success'
+    }
+    if (validOTP === 'error') {
+      return '!border-2 !border-[#FF0025] !text-semiblack'
+    }
+  }
+
   const codeBoxItems = [0, 1, 2, 3, 4, 5].map(i => (
       <CodeInput key={i}>
         <input
@@ -81,7 +96,7 @@ function InputOTP ({
             document.getElementById(`input${i}`).style.borderColor = '#33AD5C'
           }}
           key={i}
-          className={classnames(`text-[24px] text-medium font-poppins rounded-lg ${(validOTP === 'sukses') && '!border-2 !border-[#33AD5C] !text-[#33AD5C]'} ${validOTP === 'error' && '!border-2 !border-red-600 !text-[#000000]'} focus:border-[#33AD5C]`)}
+          className={classnames(`text-[24px] text-medium font-poppins rounded-lg ${generateStyle()} focus:border-success`)}
           ref={dom => {
             doms[i] = dom
           }}
@@ -94,7 +109,7 @@ function InputOTP ({
         <CodeWrapper>{codeBoxItems}</CodeWrapper>
         {
          messageError !== '' && (
-          <p className={classnames('text-[#FF0025] text-[14px] font-poppins tracking-[0.0035em] leading-[20px] mt-[3px] ')}>{messageError}</p>
+          <p className={classnames('text-danger text-[14px] font-poppins letter-spacing-default leading-[20px] mt-[3px] ')}>{messageError}</p>
          )
         }
       </Wrapper>
@@ -106,7 +121,7 @@ InputOTP.propTypes = {
   validationMessage: PropTypes.string,
   afterValidate: PropTypes.func,
   onChange: PropTypes.func.isRequired,
-  setOTPInvalidity: PropTypes.func,
+  setDisabledButon: PropTypes.func,
   cRef: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
   classProps: PropTypes.string,
   validOTP: PropTypes.string,

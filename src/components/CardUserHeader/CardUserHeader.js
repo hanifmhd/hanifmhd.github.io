@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
 import ArrowDown from '../../assets/image/arrow_down.png'
 import PropTypes from 'prop-types'
 import { Links } from './styles'
@@ -31,7 +30,6 @@ function CardUserHeader ({
         if (!ref.current || ref.current.contains(event.target)) {
           return
         }
-
         handler(event)
       }
 
@@ -46,16 +44,16 @@ function CardUserHeader ({
   }
 
   return (
-      <Link to={url}>
+      <div>
         <div className={classnames('relative flex flex-row')}>
-            <div className={classnames('pl-[10px] pr-[12px] bg-[#FF546D] rounded-[100px] text-[12px] pr-[40px] pb-[3px] pt-[3px] font-medium cursor-default relative')}>
+            <div className={classnames('pl-[10px] pr-[12px] bg-danger rounded-[100px] text-[12px] pr-[40px] pb-[3px] pt-[3px] font-medium cursor-default relative')}>
                 {role}
                 <div className={classnames('rounded-full absolute top-[-10px] right-[-10px] bg-white p-[3px]')}>
                     <img src={icon} className={classnames('w-[40px] h-[40px]')}/>
                 </div>
             </div>
 
-            <div className={classnames('pl-[15px] pr-[12px] bg-[#fff] rounded-[100px] rounded-tl-none rounded-bl-none text-[14px] text-black  pb-[3px] pt-[3px]')} onClick={handleToggle}>
+            <div className={classnames('pl-[15px] pr-[12px] bg-[#fff] rounded-[100px] rounded-tl-none rounded-bl-none text-[14px] text-semiblack  pb-[3px] pt-[3px]')} onClick={handleToggle}>
                 <span className={classnames('pr-[20px] font-medium')}>
                     {fullname}
                 </span>
@@ -64,14 +62,14 @@ function CardUserHeader ({
                 </button>
             </div>
             {showLinks && (
-                <Links className={classnames('shadow-md shadow-gray-400 rounded-md')}>
-                    <button type="button" onClick={() => onClick()}>
+                <Links className={classnames('shadow-md border border-[#00253A] shadow-gray-400 rounded-md')}>
+                    <button type="button" className={classnames('text-semiblack')} onClick={() => onClick()}>
                         Logout
                     </button>
                 </Links>
             )}
         </div>
-      </Link>
+      </div>
   )
 }
 

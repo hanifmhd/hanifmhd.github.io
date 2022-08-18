@@ -1,9 +1,8 @@
-/* eslint-disable no-unreachable */
 /* eslint-disable no-useless-escape */
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import classnames from 'classnames'
 import useAuth from '../../hooks/useAuth'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 // Pages
 import InputText from '../../components/InputText/InputText'
 import Button from '../../components/Button/Button'
@@ -36,6 +35,7 @@ import {
 import {
   detailProfileAction
 } from '../../store/actions/profile/profile.actions'
+import { encrypt } from '../../utils/crypt'
 //
 
 export default function Login () {
@@ -62,6 +62,8 @@ export default function Login () {
   }
   const { setAuth } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const from = location.state?.from?.pathname || '/'
   const [formData, setFormData] = useState(initialForm)
   const [disabledButton, setDisabledButton] = useState(true)
   const [loading, setLoading] = useState(false)
@@ -86,7 +88,7 @@ export default function Login () {
           phone_no: '\+62' + formData.phone
         })
       )
-      saveToLocalStorage('phone_no', '\+62' + formData.phone)
+      saveToLocalStorage('phone_no', encrypt('\+62' + formData.phone))
     } else if (step === 2) {
       dispatch(
         verifyOTPAction({
@@ -95,10 +97,6 @@ export default function Login () {
         })
       )
     }
-    setShowAlert((prevState) => ({
-      ...prevState,
-      clickedModalAlert: showAlert.clickedModalAlert + 1
-    }))
   }
 
   const onChange = (name, value) => {
@@ -120,6 +118,7 @@ export default function Login () {
       }
     } else if (name === 'otpNumber') {
       setLoading(true)
+      setDisabledButton(true)
       dispatch(
         verifyOTPAction({
           otp: value,
@@ -132,19 +131,6 @@ export default function Login () {
       [name]: value
     }))
   }
-
-  useEffect(() => {
-    if (showAlert.clickedModalAlert > OTP_RESEND_LIMIT) {
-      setValidOTP('first')
-      setShowAlert((prevState) => ({
-        ...prevState,
-        alertPhoneWrongAlways: true
-      }))
-    }
-    return () => {
-      controller.abort()
-    }
-  }, [showAlert.clickedModalAlert])
 
   const generateButtonSubmit = () => {
     if (loading) {
@@ -168,8 +154,7 @@ export default function Login () {
     setShowAlert((prevState) => ({
       ...prevState,
       alertPhoneWrongAlways: false,
-      messageErrorOTP: '',
-      clickedModalAlert: 0
+      messageErrorOTP: ''
     }))
   }
 
@@ -187,8 +172,7 @@ export default function Login () {
     setShowAlert((prevState) => ({
       ...prevState,
       alertPhoneWrongAlways: false,
-      messageErrorOTP: '',
-      clickedModalAlert: 0
+      messageErrorOTP: ''
     }))
   }
   const resendOTP = () => {
@@ -200,8 +184,7 @@ export default function Login () {
     setValidOTP('success')
     setShowAlert((prevState) => ({
       ...prevState,
-      messageErrorOTP: '',
-      clickedModalAlert: showAlert.clickedModalAlert + 1
+      messageErrorOTP: ''
     }))
   }
   // Use Selector Login
@@ -230,13 +213,21 @@ export default function Login () {
             splitArray[0],
             splitSecond[1]
           ],
+          alertPhoneWrongAlways: false,
           messageInterval: true
+        }))
+      } else if (responseSelector?.error.code_message === '8205') {
+        setValidOTP('first')
+        setShowAlert((prevState) => ({
+          ...prevState,
+          alertPhoneWrongAlways: true
         }))
       } else {
         setShowAlert((prevState) => ({
           ...prevState,
           alertPhoneWrong: true,
-          messageError: responseSelector.error.message
+          messageError: responseSelector.error.message,
+          alertPhoneWrongAlways: false
         }))
         setTimeout(() => {
           setShowAlert((prevState) => ({
@@ -253,16 +244,11 @@ export default function Login () {
       //
       //
     } else if (responseSelector?.status === 'sukses') {
-      // setSubmitPhone(true)
       setTicketID(responseSelector.sukses.ticket_id)
       setTimerState((prevState) => ({
         ...prevState,
         minutesState: 4,
         seconds: 59
-      }))
-      setShowAlert((prevState) => ({
-        ...prevState,
-        clickedModalAlert: 0
       }))
       if (step === 1) {
         setDisabledButton(true)
@@ -284,21 +270,27 @@ export default function Login () {
         setShowAlert((prevState) => ({
           ...prevState,
           alertPhoneWrong: true,
+          alertPhoneWrongAlways: false,
           messageError: responseSelector?.error.message
         }))
         setTimeout(() => {
           setShowAlert((prevState) => ({
             ...prevState,
             alertPhoneWrong: false,
-            clickedModalAlert: showAlert.clickedModalAlert + 1,
             messageError: ''
           }))
         }, 2000)
+      } else if (responseSelector?.error.code_message === '8205') {
+        setValidOTP('first')
+        setShowAlert((prevState) => ({
+          ...prevState,
+          alertPhoneWrongAlways: true
+        }))
       } else {
         setShowAlert((prevState) => ({
           ...prevState,
           messageErrorOTP: responseSelector?.error.message,
-          clickedModalAlert: showAlert.clickedModalAlert + 1
+          alertPhoneWrongAlways: false
         }))
       }
       setValidOTP('error')
@@ -311,10 +303,6 @@ export default function Login () {
       saveToLocalStorage('auth_token', responseSelector.sukses.token)
       saveToLocalStorage('refresh_token', responseSelector.sukses.refresh_token)
       saveToLocalStorage('expire', responseSelector.sukses.expire)
-      setShowAlert((prevState) => ({
-        ...prevState,
-        clickedModalAlert: 0
-      }))
     }
     return () => {
       controller.abort()
@@ -341,20 +329,10 @@ export default function Login () {
       }, 2000)
       // saveTo
     } else if (responseSelector?.status === 'sukses') {
-      setAuth({ user: responseSelector.sukses.fullname, pwd: 'tes', roles: 1, accessToken: loadFromLocalStorage('auth_token') })
+      setAuth({ fullname: responseSelector.sukses.fullname, accessToken: loadFromLocalStorage('auth_token'), profile_picture: responseSelector.sukses.profile_picture, role_id: responseSelector.sukses.code_id, role_name: responseSelector.sukses.code_role, phone_no: responseSelector.sukses.phone_no })
       // Save To Local Storage
-      const data = {
-        fullname: responseSelector.sukses.fullname,
-        phone_no: btoa(responseSelector.sukses.phone_no),
-        email: btoa(responseSelector.sukses.email),
-        profile_picture: responseSelector.sukses.profile_picture,
-        id: btoa(responseSelector.sukses.id),
-        role_id: responseSelector.sukses.code_id,
-        role_name: responseSelector.sukses.code_role
-      }
-      saveToLocalStorage('user', data)
       //
-      navigate('/', { replace: true })
+      navigate(from, { replace: true })
       setLoading(false)
     }
     return () => {
@@ -413,11 +391,11 @@ export default function Login () {
                 {
                   step === 1 && (
                   <div className={classnames(`${step === 1 ? 'items-center justify-center flex flex-col translate-x-0 mb-[24px]' : 'translate-x-[200px]'} ease-in-out   duration-500 mt-[44px]`)}>
-                    <h5 className={classnames('text-[#003E60] font-[20px] leading-[24px] font-semibold font-poppins ')}>Masuk sebagai admin</h5>
+                    <h5 className={classnames('text-primary font-[20px] line-height-lg letter-default font-semibold font-poppins ')}>Masuk sebagai admin</h5>
                     {/* Character */}
                       <Character/>
                     {/*  */}
-                    <p className={classnames('font-[14px] text-[#003E60] font-semibold font-poppins leading-[20px] tracking-[0.035em]')}>Nomor Ponsel</p>
+                    <p className={classnames('font-[14px] text-primary font-semibold font-poppins leading-[20px] letter-default')}>Nomor Ponsel</p>
 
                       {/*  */}
                       <div className={classnames('relative')}>
@@ -455,7 +433,16 @@ export default function Login () {
                     <div className={classnames(` relative flex flex-col ${step === 2 ? 'translate-x-0' : 'translate-x-[200px]'} ease-in-out  duration-500 w-[460px]  mt-[68px]`)}>
                       <p className={classnames('text-[14px] text-[#003E60] leading-[20px] tracking-[0.0035em]  place-self-center font-poppins')}>{TITLE_SEND_OTP}</p>
                       {/* Input Phone */}
-                      <InputText classProps={'mt-2'} classPropsInput="text-left relative" placeholder="Nomor Ponsel" valueSet={`+62 ${formData.phone}`} readonly iconRight={Edit} onChange={(name, value) => {}} onClickIcon={() => { backToPhone() }} name="phone_number" />
+                      <InputText
+                      classProps={'mt-2'}
+                      classPropsInput="text-left relative"
+                      placeholder="Nomor Ponsel"
+                      valueSet={`+62 ${formData.phone}`}
+                      readonly
+                      iconRight={Edit}
+                      onChange={(name, value) => {}}
+                      onClickIcon={() => { backToPhone() }}
+                        name="phone_number" />
                       {/* End Input Phone */}
                       {/* Input OTP */}
                       <InputOTP
@@ -465,10 +452,8 @@ export default function Login () {
                         name='otpNumber'
                         setValidOTP={(value) => { setValidOTP(value) }}
                         messageError={showAlert.messageErrorOTP}
+                        setDisabledButon= {setDisabledButton}
                       />
-                      {
-                        console.log('showAlert.messageErrorOTP', showAlert.messageErrorOTP)
-                      }
                       <div className={classnames(`block ${showAlert.messageErrorOTP ? 'mt-[2px]' : 'mt-[24px]'}`)} >
                         {/* End Input */}
                       <ButtonCountDown

@@ -1,11 +1,5 @@
-/* eslint-disable no-useless-escape */
-/* eslint-disable comma-spacing */import React, { useState } from 'react'
-// import { useLocation, useNavigate } from 'react-router-dom'
-// import useAxiosPrivate from '../../hooks/useAxiosPrivate'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-//
-// import useRefreshToken from '../../hooks/useRefreshToken'
-//
 import Card from '../../components/Card/Card'
 import TitlePages from '../../components/TitlePages/TitlePages'
 import CardUpload from '../../components/CardUpload/CardUpload'
@@ -13,7 +7,7 @@ import InputPhoneNew from '../../components/InputPhone/InputPhoneNew'
 import Dropdown from '../../components/Dropdown/Dropdown'
 import CardDropzone from '../../components/CardDropzone/CardDropzone'
 import classnames from 'classnames'
-
+import { Controller, useForm } from 'react-hook-form'
 // Asset
 import Drone from '../../assets/icon/Drone.png'
 import IOT from '../../assets/icon/IOT.png'
@@ -58,7 +52,6 @@ function Report ({ showSide }) {
       value: '678'
     }
   ]
-
   // const navigate = useNavigate()
   // const location = useLocation()
   // const axiosPrivate = useAxiosPrivate()
@@ -77,6 +70,12 @@ function Report ({ showSide }) {
     status: false,
     message: ''
   })
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors }
+  } = useForm()
   const [configUpload, setConfigUpload] = useState({
     formatUpload: {},
     typeUpload: '',
@@ -96,7 +95,7 @@ function Report ({ showSide }) {
       setShowCardLaporan(false)
       setTimeout(() => {
         setShowCardLaporan(true)
-      },500)
+      }, 500)
     }
     setFormData((prevState) => ({
       ...prevState,
@@ -106,21 +105,32 @@ function Report ({ showSide }) {
 
   const searchLahan = () => {
     setOptionLahan([])
-    setOptionLahan(initialOptionLahan)
+    if (formData.phone === '87720611866') {
+      setOptionLahan(initialOptionLahan)
+    }
+    reset({
+      nama_lahan: ''
+    }, {
+      keepErrors: true,
+      keepDirty: true,
+      keepIsSubmitted: false,
+      keepTouched: false,
+      keepIsValid: false
+    })
     setClickShowCard(false)
     setShowAlert({
       status: false,
       message: ''
     })
     setShowCardLaporan(false)
+    setFormData((prevState) => ({
+      ...prevState,
+      nama_lahan: null
+    }))
     setDropdownState((prevState) => ({
       ...prevState,
       title: 'Pilih Lahan',
       disabledDropdown: false
-    }))
-    setFormData((prevState) => ({
-      ...prevState,
-      nama_lahan: ''
     }))
   }
 
@@ -149,7 +159,7 @@ function Report ({ showSide }) {
     setShowCardLaporan(true)
     setTimeout(() => {
       setLoading(false)
-    },100)
+    }, 100)
   }
 
   const onClick = (id, title, arrayDoc, formatUpload, typeUpload, maksimalUpload) => {
@@ -172,6 +182,7 @@ function Report ({ showSide }) {
      {/* Snackbar */}
     <TitlePages title="Unggah Laporan"/>
     <Card title="Buka Data Lahan" color="#009933" classProps={`ease-out duration-1000   ${showSide ? 'sm:w-[100%] md:w-[70%] ' : 'w-[90%]'} relative`}>
+    <form onSubmit={handleSubmit(openDocument)}>
       <div className={classnames('flex flex-row w-full gap-4 flex-auto ')}>
           <div className={classnames('relative w-full ')}>
             <InputPhoneNew
@@ -197,49 +208,65 @@ function Report ({ showSide }) {
             />
             {
               showAlert && (
-                <p className={classnames('text-[14px] leading-[20px] font-poppins text-[#FF0025] absolute bottom-[-25px]')}>
+                <p className={classnames('text-md leading-[20px] font-poppins text-danger absolute bottom-[-25px]')}>
                   {showAlert.message}
                 </p>
               )
             }
           </div>
-          <Dropdown
-            label="Nama Lahan"
-            className="nama_lahan"
-            id="nama_lahan"
-            name="nama_lahan"
-            validationMessage={dropdownState.validasiMessage}
-            onChange={(name, value) => {
-              onChangeDropdown(name, value)
-            }}
-            placeholder={dropdownState.title}
-            options={optionLahan}
-            value={formData.nama_lahan}
-            classProps="text-left"
-            required
-            isDisabled={dropdownState.disabledDropdown}
-          />
-      </div>
-        {
-          !showCardLaporan && !clickShowCard && (
-            <div className={classnames('flex justify-end mt-[61px]')}>
-              <Button text="Buka Daftar Dokumen" variant="success" noFill onClick={() => { openDocument() }}/>
-            </div>
-          )
-        }
+          <Controller
+             control={control}
+             name="nama_lahan"
+             rules= {{
+               required: {
+                 value: true,
+                 message: 'Nama Lahan Wajib Diisi'
+               }
+             }}
+             render={({ field: { onChange, value, ref } }) => (
+              <Dropdown
+                placeholder={dropdownState.title}
+                options={optionLahan}
+                label="Nama Lahan"
+                required
+                name='nama_lahan'
+                onChange={(nameLahan, valueData) => {
+                  const setVal = optionLahan.filter(x => x.value === valueData)
+                  onChange(setVal[0])
+                  onChangeDropdown(nameLahan, setVal[0].value)
+                }}
+                control={control}
+                value={value}
+                classProps="text-left"
+                validationMessage="Wajib Diisi"
+                inputRef={ref}
+                errors={errors.nama_lahan}
+                isDisabled={dropdownState.disabledDropdown}
+              />
+             )}
+           />
+        </div>
+          {
+            !showCardLaporan && !clickShowCard && (
+              <div className={classnames('flex justify-end mt-[61px]')}>
+                <Button text="Buka Daftar Dokumen" variant="success" noFill type="submit"/>
+              </div>
+            )
+          }
+        </form>
         </Card>
     {/* Buka Dokumen */}
     {
       showCardLaporan && (
         <Card
-          title="Buka Data Lahan"
+          title="Daftar Laporan"
           color="#009933"
           classProps={`ease-out duration-1000   ${showSide ? 'w-[70%]' : 'w-[90%]'}`}
         >
 
              <div className={classnames('grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 gap-7 ')}>
                 <CardUpload
-                  onClick={() => { onClick(ID_DRONE, TITLE_DRONE, countDokumen.doc_drone_mapping,FORMAT_DRONE, TYPE_DRONE, MAX_SIZE_DEFAULT) }}
+                  onClick={() => { onClick(ID_DRONE, TITLE_DRONE, countDokumen.doc_drone_mapping, FORMAT_DRONE, TYPE_DRONE, MAX_SIZE_DEFAULT) }}
                   title={TITLE_DRONE}
                   subTitle={countDokumen.doc_drone_mapping.length > 0 ? countDokumen.doc_drone_mapping.length + ' dokumen' : EMPTY_DOC}
                   icon={Drone}
@@ -260,7 +287,7 @@ function Report ({ showSide }) {
                   opacity={!loading ? 100 : 0}
                 />
                 <CardUpload
-                  onClick={() => { onClick(ID_DOKUMENTASI, TITLE_DOKUMENTASI, countDokumen.doc_video,FORMAT_VIDEO, TYPE_VIDEO, MAX_SIZE_DEFAULT) }}
+                  onClick={() => { onClick(ID_DOKUMENTASI, TITLE_DOKUMENTASI, countDokumen.doc_video, FORMAT_VIDEO, TYPE_VIDEO, MAX_SIZE_DEFAULT) }}
                   title={TITLE_DOKUMENTASI}
                   subTitle={countDokumen.doc_video.length > 0 ? countDokumen.doc_video.length + ' dokumen' : EMPTY_DOC}
                   icon={VideoDok}

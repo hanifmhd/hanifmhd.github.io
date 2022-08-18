@@ -15,93 +15,66 @@ function Button ({
   disabled,
   onClick,
   color,
-  noBorder = false,
   noFill = false,
   classProps,
   ...rest
 }) {
+  // Function Mapping Style
+  const mappingStyle = (variantStyle) => {
+    if (!disabled) {
+      if (variantStyle === 'primary') {
+        if (!noFill) {
+          return 'btn-primary'
+        } else {
+          return 'btn-no-fill-primary'
+        }
+      } else if (variantStyle === 'success') {
+        if (!noFill) {
+          return 'btn-success'
+        } else {
+          return 'btn-no-fill-success'
+        }
+      } else if (variantStyle === 'warning') {
+        if (!noFill) {
+          return 'btn-warning'
+        } else {
+          return 'btn-no-fill-warning'
+        }
+      } else if (variantStyle === 'danger') {
+        if (!noFill) {
+          return 'btn-danger'
+        } else {
+          return 'btn-no-fill-danger'
+        }
+      } else if (variantStyle === 'default') {
+        if (!noFill) {
+          return 'btn-default'
+        } else {
+          return 'btn-no-fill-default'
+        }
+      }
+    } else {
+      return 'btn-disabled'
+    }
+  }
   /* eslint-disable */
-   switch (variant) {
-     case 'primary':
-       return (
-         <button
-           className={classnames(`py-[12px] px-[15px] rounded-[4px] cursor-pointer block ${!disabled ? !noFill ? 'bg-[#00446A] text-white border-none hover:opacity-[.7]' : 'bg-[#ffff] text-[#00446A] border border-[#00446A]' : 'bg-[#D7DCDF] text-white'} font-poppins ${classProps}`)}
-           type={type}
-           onClick={onClick}
-           disabled={disabled}
-           color={color}
-           {...rest}
-         >
-           {text}
-         </button>
-       );
- 
-     case 'success':
-        return (
-            <button
-              className={classnames(`py-[12px] px-[15px] rounded-[4px] cursor-pointer block ${!disabled ?!noFill ? 'bg-[#33AD5C] text-white border-none hover:opacity-[.7]' : 'bg-[#ffff] hover:bg-[#33AD5C] hover:text-white text-[#33AD5C] border border-[#33AD5C]' : 'bg-[#D7DCDF] text-white'} font-poppins ${classProps}`)}
-              type={type}
-              onClick={onClick}
-              disabled={disabled}
-              color={color}
-              {...rest}
-            >
-              {text}
-            </button>
-          );
-
-          case 'warning':
-            return (
-                <button
-                  className={classnames(`py-[12px] px-[15px] rounded-[4px] cursor-pointer block ${!disabled ? !noFill ? 'bg-[#F89C30] text-white border-none hover:opacity-[.7]' : 'bg-[#ffff] text-[#F89C30] border border-[#F89C30]' : 'bg-[#D7DCDF] text-white'} font-poppins ${classProps}`)}
-                  type={type}
-                  onClick={onClick}
-                  disabled={disabled}
-                  color={color}
-                  {...rest}
-                >
-                  {text}
-                </button>
-              );
-
-          case 'noColor':
-            return (
-                <button
-                  className={classnames(`py-[12px] px-[15px] rounded-[4px] cursor-pointer block text-[#003E60] font-semibold font-poppins ${classProps}`)}
-                  type={type}
-                  onClick={onClick}
-                  disabled={disabled}
-                  color={color}
-                  {...rest}
-                >
-                  {text}
-                </button>
-              );
- 
-     default:
-        return (
-            <button
-              className={classnames(`py-[12px] px-[15px] rounded-[4px] cursor-pointer block ${!noFill ? 'bg-[#00446A] text-white border-none hover:opacity-[.7]' : 'bg-[#ffff] text-[#00446A] border border-[#00446A]'} font-poppins ${classProps}`)}
-              type={type}
-              onClick={onClick}
-              disabled={disabled}
-              color={color}
-              {...rest}
-            >
-              {text}
-            </button>
-          );
-       break;
-   }
+  return (
+    <button
+      className={classnames(`${mappingStyle(variant)} font-poppins ${classProps}`)}
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      color={color}
+      {...rest}
+    >
+      {text}
+    </button>
+  )
    /* eslint-enable */
 }
 
 Button.propTypes = {
-  text: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.element,
-    PropTypes.component
-  ]),
+  text: PropTypes.any,
   type: PropTypes.string,
   color: PropTypes.string,
   variant: PropTypes.string,

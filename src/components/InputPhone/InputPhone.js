@@ -46,6 +46,18 @@ export default function InputPhone ({
   const focusSetStyle = 'font-poppins font-medium leading-[24px] tracking-[0.5px] text-[#00253A]'
   const notFocusStyle = 'font-poppins font-medium leading-[20px] tracking-[0.0035em] text-[#BABEC1]'
 
+  const generateStyle = () => {
+    if (!onFocus && valueSet !== '') {
+      return `${notFocusValueSetStyle}`
+    } else {
+      if (onFocus) {
+        return `${focusSetStyle}`
+      } else {
+        return `${notFocusStyle}`
+      }
+    }
+  }
+
   return (
       <div className={classnames(`${classProps}`)} onClick={() => { onClick() }}>
           {
@@ -56,12 +68,10 @@ export default function InputPhone ({
           )}
         <InputBox className={classnames(`${classPropsBox}`)}>
             <InputWrap className={classnames(`${textType === 'center' ? 'w-full' : '!pl-[16px]'}`)}>
-                <InputLabel className={classnames('font-poppins leading-[24px] tracking-[0.5px] font-medium text-[#003E60]')}>
-
-                  {/* {!onFocus && onSubmitPhone  ? '+62' : onFocus ? '+62' : ''} */}
+                <InputLabel className={classnames('font-poppins leading-[24px] tracking-[0.5px] font-medium text-primary')}>
                   +62
                 </InputLabel>
-                <InputValue contentEditable="true" suppressContentEditableWarning={true} className={classnames(`input-value focus:outline-0  ${!onFocus && valueSet !== '' ? notFocusValueSetStyle : onFocus ? focusSetStyle : notFocusStyle} cursor-text  ${!onFocus && valueSet === '' ? '!pt-[12px]' : '!pt-[10px]'}`)}>
+                <InputValue contentEditable="true" suppressContentEditableWarning={true} className={classnames(`input-value focus:outline-0  ${generateStyle()} cursor-text  ${!onFocus && valueSet === '' ? '!pt-[12px]' : '!pt-[10px]'}`)}>
                     {!onFocus && onSubmitPhone ? valueSet : onFocus ? '' : placeholder}</InputValue>
             </InputWrap>
 

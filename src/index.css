@@ -4,6 +4,135 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Reusable Component */
+@layer components {
+  /* Body */
+  body {
+    @apply font-poppins text-semiblack
+  }
+  /* Button */
+  .btn-primary {
+    @apply py-[12px] px-[15px] rounded-[4px] cursor-pointer block bg-[#00446A] text-white border-none hover:opacity-[.7];
+  }
+  .btn-no-fill-primary {
+    @apply py-[12px] px-[15px] rounded-[4px] cursor-pointer block bg-[#ffff] text-[#00446A] border hover:bg-[#00446A] hover:text-white border-[#00446A];
+  }
+  .btn-disabled {
+    @apply py-[12px] px-[15px] rounded-[4px] cursor-pointer block bg-[#D7DCDF] text-white
+  }
+  /* Success */
+  .btn-success {
+    @apply py-[12px] px-[15px] rounded-[4px] cursor-pointer block bg-[#33AD5C] text-white border-none hover:opacity-[.7];
+  }
+  .btn-no-fill-success {
+    @apply py-[12px] px-[15px] rounded-[4px] cursor-pointer block bg-[#ffff] text-[#33AD5C] border border-[#33AD5C] hover:bg-[#33AD5C] hover:text-white;
+  }
+   /* Warning */
+   .btn-warning {
+    @apply py-[12px] px-[15px] rounded-[4px] cursor-pointer block bg-[#F89C30] text-white border-none hover:opacity-[.7];
+  }
+  .btn-no-fill-warning {
+    @apply py-[12px] px-[15px] rounded-[4px] cursor-pointer block bg-[#ffff] text-[#F89C30] border border-[#F89C30] hover:bg-[#F89C30] hover:text-white;
+  }
+  /* Danger */
+  .btn-danger {
+    @apply py-[12px] px-[15px] rounded-[4px] cursor-pointer block bg-[#EE4949] text-white border-none hover:opacity-[.7];
+  }
+  .btn-no-fill-danger {
+    @apply py-[12px] px-[15px] rounded-[4px] cursor-pointer block bg-[#ffff] text-[#EE4949] border border-[#EE4949] hover:bg-[#EE4949] hover:text-white;
+  }
+  /* Danger */
+  .btn-default {
+    @apply py-[12px] px-[15px] rounded-[4px] cursor-pointer block bg-[#00253A] text-white border-none hover:opacity-[.7];
+  }
+  .btn-no-fill-default {
+    @apply py-[12px] px-[15px] rounded-[4px] cursor-pointer block bg-[#ffff] text-[#00253A] border border-[#00253A] hover:bg-[#00253A] hover:text-white;
+  }
+  /* End Button */
+  /* Text Variant*/
+  .text-semiblack {
+    @apply text-[#00253A]
+  }
+  .text-primary {
+    @apply text-[#003E60]
+  }
+  .text-success {
+    @apply text-[#33AD5C]
+  }
+  .text-danger {
+    @apply text-[#FF0025]
+  }
+  .text-subtitle {
+    @apply text-[#BABEC1]
+  }
+  /* End Text Variant */
+  /* Size Text */
+  .text-xs {
+    @apply text-[10px]
+  }
+  .text-small {
+    @apply text-[12px]
+  }
+  .text-md {
+    @apply text-[14px]
+  }
+  .text-lg {
+    @apply text-[18px]
+  }
+  /* End Size Text */
+  /* Card Upload */
+  .card-upload {
+    @apply flex bg-white relative pt-[10px] pb-[10px] pr-[20px] pl-[20px] items-center place-items-center content-center border border-[#E4E8EC] rounded-lg transition duration-300 ease-in
+  }
+  /* End Card Upload */
+  /* Background */
+  .bg-success {
+    @apply bg-[#009933]
+  }
+  .bg-primary {
+    @apply bg-[#00446A]
+  }
+  .bg-danger {
+    @apply bg-[#FF546D]
+  }
+  .bg-danger-full {
+    @apply bg-[#EE4949]
+  }
+  .bg-secondary {
+    @apply bg-[#3D3F40]
+  }
+  /* End Background */
+  /* Line Height */
+  .line-height-default {
+    @apply leading-[18px]
+  }
+  .line-height-lg {
+    @apply leading-[24px]
+  }
+  /* Letter Spacing */
+  .letter-small {
+    @apply tracking-[0.25px]
+  }
+  .letter-default {
+    @apply tracking-[0.0035em]
+  }
+  /* End Letter Spacing */
+  /* Border Color */
+  .border-primary {
+    @apply border-[#00253A]
+  }
+  .border-success {
+    @apply border-[#33AD5C]
+  }
+  .border-danger {
+    @apply border-[#FF0025]
+  }
+  .border-secondary {
+    @apply border-[#D7DCDF]
+  }
+  /* End Border Color */
+}
+/*  */
 /* width */
 ::-webkit-scrollbar {
     width: 8px;

@@ -2,15 +2,17 @@ import axios from '../services/api'
 import { PLATFORM_LANG, PLATFORM_NAME } from '../services/helpers'
 import { clearLocalStorage } from '../utils/local-storage-helper'
 import useAuth from './useAuth'
-import { useNavigate } from 'react-router-dom'
 
 const useLogout = () => {
   const { auth, setAuth } = useAuth()
-  const navigate = useNavigate()
   const logout = async () => {
     setAuth({})
     clearLocalStorage('persist')
     clearLocalStorage('user')
+    clearLocalStorage('auth_token')
+    clearLocalStorage('refresh_token')
+    clearLocalStorage('phone_no')
+    clearLocalStorage('expire')
     try {
       await axios.post('/v1/sign-out', {}, {
         headers: {
@@ -21,8 +23,9 @@ const useLogout = () => {
         }
       })
       clearLocalStorage('redirect')
+      location.reload('/login')
     } catch (err) {
-      navigate('/login', { replace: true })
+      location.reload('/login')
     }
   }
   return logout

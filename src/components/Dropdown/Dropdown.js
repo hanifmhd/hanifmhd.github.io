@@ -13,43 +13,31 @@ import Select from 'react-select'
 import { InputWrapper } from './styles'
 
 function Dropdown ({
-  validate,
   validationMessage,
-  afterValidate,
   options,
   onChange,
   value,
   name,
-  cRef,
   placeholder,
   isDisabled,
   isSearchable,
   isCreatable,
   hide = false,
   label,
-  iconLeft,
   id,
-  showItalic,
-  labelItalic,
   displayInput = 'block',
-  labelSub,
   classProps,
   ...rest
 }) {
-  //  const [status, doValidate] = useValidate(validate, afterValidate);
-  // const [_, setCurrentValue] = useState()
   const [currentOptions, setCurrentOptions] = useState(options || [])
-
   const makeHandleOnChange = nameProp => event => {
     onChange(nameProp, event.value)
-    // setCurrentValue(event)
-    //  doValidate(event.value);
   }
 
   useEffect(() => {
     setCurrentOptions(options)
   }, [options])
-  //  const errorStatus = rest.errors !== undefined ? -1 : status;
+
   return (
      <InputWrapper
        status={false}
@@ -58,25 +46,11 @@ function Dropdown ({
      >
        {label && (
          <label
-           className={classnames('text-[14px] text-[#003E60]')}
+           className={classnames('text-[14px] text-primary')}
            htmlFor={id}
          >
            {label}
          </label>
-       )}
-       {showItalic && (
-         <>
-           <br />
-           <label
-             style={{
-               fontSize: '13px',
-               fontStyle: 'italic',
-               color: '#ADB5BD'
-             }}
-           >
-             {labelItalic}
-           </label>
-         </>
        )}
        <div style={{ position: 'relative', marginTop: '3px' }}>
          {!isCreatable && (
@@ -86,8 +60,7 @@ function Dropdown ({
              placeholder={placeholder}
              isSearchable={isSearchable || false}
              options={currentOptions}
-             value={currentOptions.filter(option => option.value === value)
-             }
+             value={value}
              onChange={makeHandleOnChange(name)}
              isDisabled={isDisabled}
              theme={theme => ({
@@ -100,10 +73,11 @@ function Dropdown ({
            />
          )}
        </div>
-      <p className={classnames('absolute bottom-[-25px] text-red-500')}>
-        {validationMessage}
-      </p>
-
+       {validationMessage && (
+          <p className={classnames(`text-danger text-md leading-[20px] letter-spacing-default text-left ${rest.errors ? 'block' : 'hidden'}`)}>
+            {rest.errors?.message}
+          </p>
+       )}
      </InputWrapper>
   )
 }
@@ -133,8 +107,6 @@ Dropdown.propTypes = {
   label: PropTypes.string,
   iconLeft: PropTypes.string,
   id: PropTypes.string,
-  showItalic: PropTypes.bool,
-  labelItalic: PropTypes.string,
   displayInput: PropTypes.string,
   labelSub: PropTypes.string,
   classProps: PropTypes.string

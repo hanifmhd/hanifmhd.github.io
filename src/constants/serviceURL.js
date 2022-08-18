@@ -7,3 +7,6 @@ export const VERIFY_OTP =
 
 export const DETAIL_PROFILE =
   '/v1/profile'
+
+export const REFRESH_URL =
+  '/v1/refresh'

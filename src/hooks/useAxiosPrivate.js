@@ -1,20 +1,19 @@
-/* eslint-disable no-mixed-operators */
 import { axiosPrivate } from '../services/api'
 import { useEffect } from 'react'
-import useRefreshToken from './useRefreshToken'
+import { useRefreshToken } from './useRefreshToken'
 import useAuth from './useAuth'
-import { useNavigate } from 'react-router-dom'
-import { loadFromLocalStorage } from '../utils/local-storage-helper'
+import { clearLocalStorage, loadFromLocalStorage } from '../utils/local-storage-helper'
+import useLogout from './useLogout'
 
 const useAxiosPrivate = () => {
   const refresh = useRefreshToken()
   const { auth } = useAuth()
-  const navigate = useNavigate()
   useEffect(() => {
     const requestIntercept = axiosPrivate.interceptors.request.use(
       config => {
         if (!config.headers.Authorization) {
-          config.headers.Authorization = loadFromLocalStorage('auth_token')
+          const decryptToken = loadFromLocalStorage('auth_token')
+          config.headers.Authorization = decryptToken
         }
         return config
       }, (error) => Promise.reject(error)
@@ -23,18 +22,20 @@ const useAxiosPrivate = () => {
     const responseIntercept = axiosPrivate.interceptors.response.use(
       response => response,
       async (error) => {
+        const logout = useLogout()
         const prevRequest = error?.config
-        if (error?.response?.status === 403 && !prevRequest?.sent || error?.response?.status === 401) {
+        if (error?.response?.status === 417 || error?.response?.data?.meta?.code === '8206') {
           prevRequest.sent = true
-          const jwtExpired = localStorage.getItem('expire')
-          const expiryDate = (Date.now() + (jwtExpired * 1000))
-          if (expiryDate < Date.now()) {
-            const newAccessToken = await refresh()
-            prevRequest.headers.Authorization = newAccessToken
-            return axiosPrivate(prevRequest)
-          } else {
-            navigate('/login', { replace: true })
-          }
+          const newAccessToken = await refresh()
+          prevRequest.headers.Authorization = newAccessToken
+          return axiosPrivate(prevRequest)
+        } else if (error?.response?.status === 412 || error?.response?.status === 403) {
+          clearLocalStorage('persist')
+          clearLocalStorage('user')
+          clearLocalStorage('auth_token')
+          clearLocalStorage('refresh_token')
+          clearLocalStorage('phone_no')
+          logout()
         }
         return Promise.reject(error)
       }

@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-expressions */
 /**
  *
  * InputText
@@ -23,7 +22,10 @@ function InputText ({
   pattern,
   formatter,
   validate,
-  validateOptions,
+  validateOptions = {
+    minLen: 0,
+    maxLen: 255
+  },
   iconLeft,
   placeholder,
   valueSet,
@@ -54,25 +56,11 @@ function InputText ({
       onChange(name, formated)
     }
   }
-
-  const handleOnBlur = async e => {
-    const newValue = pattern
-      ? e.target.value.replace(pattern, '').replace(/(^\s*)|(\s*$)/g, '')
-      : e.target.value.replace(/(^\s*)|(\s*$)/g, '')
-    const formated = formatter ? formatter(newValue) : newValue
-    onChange(name, formated)
-  }
   // Focus
-  const handleOnFocus = e => {
-    if (type === 'numeric') {
-      const targetVal = e.target.value.replace(/[^0-9]/gi, '').trim()
-      onChange(name, targetVal)
-    }
-  }
-
+  const errorStatus = inputProps.errors?.message !== undefined
   return (
      <InputWrapper
-       className={classnames(`flex relative  ${classProps}`)}
+       className={classnames(`flex flex-col relative  ${classProps}`)}
        {...inputProps}
      >
        {label && (
@@ -91,20 +79,21 @@ function InputText ({
            ref={ref}
            placeholder={placeholder}
            defaultValue={valueSet}
-           // value={valueSet}
-           maxLength={maxLength}
-           onBlur={e => {
-             !notOnBlur ? handleOnBlur(e) : ''
-           }}
-           onFocus={e => handleOnFocus(e)}
+           minLength={validateOptions !== undefined ? validateOptions.minLen : ''}
+           maxLength={validateOptions !== undefined ? validateOptions.maxLen : ''}
            disabled={inputProps.disabled}
            {...register(name, {
-             required: inputProps.required,
+             required: {
+               value: inputProps.required,
+               message: 'Wajib Diisi'
+             },
              minLength: {
-               value:
-                 validateOptions &&
-                 validateOptions.minLen !== undefined &&
-                 validateOptions.minLen
+               value: validateOptions !== undefined ? validateOptions.minLen : false,
+               message: `Minimal input ${validateOptions?.minLen} karakter`
+             },
+             maxLength: {
+               value: validateOptions !== undefined ? validateOptions.maxLen : false,
+               message: `Maksimal input ${validateOptions?.maxLen} karakter`
              }
            })}
          />
@@ -115,6 +104,11 @@ function InputText ({
             </button>
           )
          }
+         {validationMessage && (
+          <p className={classnames(`text-[#FF0025] text-[14px] leading-[20px] tracking-[0.0035em] text-left ${errorStatus ? 'block' : 'hidden'}`)}>
+            {inputProps.errors?.message}
+          </p>
+         )}
      </InputWrapper>
   )
 }

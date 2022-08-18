@@ -3,7 +3,6 @@ import DropzoneComp from './DropzoneComp'
 import PropTypes from 'prop-types'
 
 function CardDropzone ({
-  data,
   title,
   closeModal,
   temporaryDoc,
@@ -73,14 +72,17 @@ function CardDropzone ({
 }
 
 CardDropzone.propTypes = {
-  data: PropTypes.any,
   title: PropTypes.string,
   closeModal: PropTypes.func,
   temporaryDoc: PropTypes.array,
   removeDataFileDoc: PropTypes.func,
   formatUpload: PropTypes.object,
   tipeUpload: PropTypes.string,
-  maksimalUpload: PropTypes.number
+  maksimalUpload: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+    PropTypes.bool
+  ])
 }
 
 export default CardDropzone

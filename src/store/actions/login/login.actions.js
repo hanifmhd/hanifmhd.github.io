@@ -1,10 +1,11 @@
 /* eslint-disable no-async-promise-executor */
-import { loginActionServ, verifyOTPActionServ } from '../../../services/services'
+import { loginActionServ, verifyOTPActionServ, refreshToken } from '../../../services/services'
 import Login from '../../../models/login/login'
 import * as actionType from '../../../constants/action-type/login'
+import { clearLocalStorage, saveToLocalStorage } from '../../../utils/local-storage-helper'
 
 export const loginAction = data => dispatch =>
-  new Promise(async (resolve, reject) => {
+  new Promise(async (resolve) => {
     try {
       const resData = await loginActionServ(data)
       const datas = new Login(resData.data.data)
@@ -57,6 +58,34 @@ export const verifyOTPAction = data => dispatch =>
         },
         type: actionType.VERIFY_FAILED
       })
+      return err
+    }
+  })
+
+export const refreshTokenAct = (data, functionData) => dispatch =>
+  new Promise(async (resolve) => {
+    try {
+      const resData = await refreshToken(data)
+      const datas = new Login(resData.data.data)
+      datas.token = resData.data.data.token
+      const encryptToken = resData.data.data.token
+      saveToLocalStorage('auth_token', encryptToken)
+      dispatch({
+        type: actionType.REFRESH_SUCCESS
+      })
+      dispatch(functionData)
+      resolve(resData)
+      return resData
+    } catch (err) {
+      dispatch({
+        type: actionType.REFRESH_FAILED
+      })
+      clearLocalStorage('persist')
+      clearLocalStorage('user')
+      clearLocalStorage('auth_token')
+      clearLocalStorage('refresh_token')
+      clearLocalStorage('phone_no')
+      location.reload('/login')
       return err
     }
   })

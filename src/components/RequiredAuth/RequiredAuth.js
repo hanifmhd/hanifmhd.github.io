@@ -1,28 +1,28 @@
-/* eslint-disable react/react-in-jsx-scope */
+import React from 'react'
 import { useLocation, Navigate, Outlet } from 'react-router-dom'
-// import useAuth from '../../hooks/useAuth'
-import { loadFromLocalStorage } from '../../utils/local-storage-helper'
+import useAuth from '../../hooks/useAuth'
+import PropTypes from 'prop-types'
 
 const RequiredAuth = ({ allowedRoles }) => {
-//   const { auth } = useAuth()
+  const { auth } = useAuth()
   const location = useLocation()
-  const user = loadFromLocalStorage('user')
-  const checkRole = () => {
-    const myarr = allowedRoles
-    const arraycontainsturtles = (myarr.indexOf(user?.role_id) > -1)
-    if (arraycontainsturtles) {
-      return <Outlet/>
-    } else {
-      // if(auth?.user){
-      if (user?.fullname) {
-        return <Navigate to="/unauthorized" state={{ from: location }} replace/>
-      } else {
-        return <Navigate to="/login" state={{ from: location }} replace/>
-      }
-    }
-  }
+  const [role] = React.useState(auth?.role_id)
+  const myarr = allowedRoles
 
-  return checkRole()
+  return (
+    myarr.indexOf(role) > -1
+      ? <Outlet/>
+      : auth?.fullname
+        ? <Navigate to="/unauthorized" state={{ from: location }} replace/>
+        : <Navigate to="/login" state={{ from: location }} replace/>
+  )
+}
+
+RequiredAuth.propTypes = {
+  allowedRoles: PropTypes.oneOfType([
+    PropTypes.array,
+    PropTypes.object
+  ])
 }
 
 export default RequiredAuth
